@@ -10,7 +10,7 @@ BEGIN TRANSACTION;
  * To clean it.
  */
 CREATE TABLE "ACRIS_-_Real_Property_Master" (
-	"Document ID"	TEXT PRIMARY KEY,
+	"Document ID"	TEXT,
 	"Record_type"	TEXT,
 	"CRFN"	BIGINT,
 	"Recorded_borough"	SMALLINT,
@@ -23,7 +23,8 @@ CREATE TABLE "ACRIS_-_Real_Property_Master" (
 	"Reel_nbr"	INTEGER,
 	"Reel_pg"	INTEGER,
 	"Percent_trans"	REAL,
-	"Good_through date"	TEXT
+	"Good_through date"	TEXT,
+	PRIMARY KEY ("Document ID", "Good_through date")
 );
 
 /**
@@ -33,27 +34,37 @@ CREATE TABLE "ACRIS_-_Real_Property_Master" (
  **/
 
 CREATE TABLE "ACRIS_-_Real_Property_References" (
-	"Document ID"	TEXT REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID"),
+	"Document ID"	TEXT,
 	"Record_type"	TEXT,
 	"CRFN"	TEXT,
-	--"Doc_id_ref"	TEXT REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID"),
 	"Doc_id_ref"	TEXT,
 	"Reel_yr"	INTEGER,
 	"Reel_borough"	INTEGER,
 	"Reel_nbr"	INTEGER,
 	"Reel_pg"	INTEGER,
 	"Good_through date"	TEXT
+	--, FOREIGN KEY ("Document ID", "Good_through date")
+	--	REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID", "Good_through date"),
+	--FOREIGN KEY ("Doc_id_ref", "Good_through date")
+	--	REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID", "Good_through date")
 );
 
 /**
  * COPY "ACRIS_-_Real_Property_References" FROM '/Users/talos/Programming/acris/ACRIS_-_Real_Property_References.csv' WITH CSV HEADER;
  *
- * There's (surprise) some bad data: the CRFN 'SIMUL REC' for example, as well
- * as the "Doc_id_ref" 'FT_1150008404315', which makes a proper FK impossible.
+ * There's (surprise) some bad data: the CRFN 'SIMUL REC' for example, means no
+ * INT for "CRFN".
+ *
+ * Numerous unmatched Doc IDs make FOREIGN KEYing impossible.
+ * There are also numerous unmatched DOC IDs:
+ *
+ * sed -i tmp '/FT_1150008404315/d' ACRIS_-_Real_Property_References.csv
+ * sed -i tmp '/FT_1030008409203/d' ACRIS_-_Real_Property_References.csv
+ * sed -i tmp '/FT_1120008438712/d' ACRIS_-_Real_Property_References.csv
  **/
 
 CREATE TABLE "ACRIS_-_Real_Property_Parties" (
-	"Document ID"	TEXT REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID"),
+	"Document ID"	TEXT,
 	"Record_type"	TEXT,
 	"Party_type"	SMALLINT,
 	"Name"	TEXT,
@@ -63,7 +74,9 @@ CREATE TABLE "ACRIS_-_Real_Property_Parties" (
 	"City"	TEXT,
 	"State"	TEXT,
 	"Zip"	TEXT,
-	"Good_through date"	TEXT
+	"Good_through date"	TEXT,
+	FOREIGN KEY ("Document ID", "Good_through date")
+		REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID", "Good_through date")
 );
 
 /**
@@ -72,7 +85,7 @@ CREATE TABLE "ACRIS_-_Real_Property_Parties" (
  **/
 
 CREATE TABLE "ACRIS_-_Real_Property_Legals" (
-	"Document ID"	TEXT REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID"),
+	"Document ID"	TEXT,
 	"Record_type"	TEXT,
 	"Borough"	SMALLINT,
 	"Block"	INTEGER,
@@ -85,13 +98,17 @@ CREATE TABLE "ACRIS_-_Real_Property_Legals" (
 	"Street_number"	TEXT,
 	"Street_Name"	TEXT,
 	"Addr_unit"	TEXT,
-	"Good_through	date"	TEXT
+	"Good_through date"	TEXT,
+	FOREIGN KEY ("Document ID", "Good_through date")
+		REFERENCES "ACRIS_-_Real_Property_Master" ("Document ID", "Good_through date")
 );
+
+CREATE INDEX BBLE ON "ACRIS_-_Real_Property_Legals"
+    ("Borough", "Block", "Lot", "Easement");
 
 /**
  * COPY "ACRIS_-_Real_Property_Legals" FROM '/Users/talos/Programming/acris/ACRIS_-_Real_Property_Legals.csv' WITH CSV HEADER;
  *
- * Missing reference key "2013071600491002"
  **/
 
 END TRANSACTION;
