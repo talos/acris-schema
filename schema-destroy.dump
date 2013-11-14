@@ -1,0 +1,6 @@
+BEGIN TRANSACTION;
+DROP TABLE "ACRIS_-_Real_Property_Parties";
+DROP TABLE "ACRIS_-_Real_Property_References";
+DROP TABLE "ACRIS_-_Real_Property_Legals";
+DROP TABLE "ACRIS_-_Real_Property_Master";
+END TRANSACTION;
